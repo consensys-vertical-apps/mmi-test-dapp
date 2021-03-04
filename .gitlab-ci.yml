@@ -6,6 +6,8 @@ pages:
     - mkdir .public
     - cp -r dist/* .public
     - mv .public public
+  tags:
+    - eu-west-3
   artifacts:
     paths:
       - public
