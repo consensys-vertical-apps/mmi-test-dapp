@@ -34,11 +34,13 @@ const permissionsResult = document.getElementById('permissionsResult')
 // Contract Section
 const deployButton = document.getElementById('deployButton')
 const depositButton = document.getElementById('depositButton')
+const showMeTheMoneyButton = document.getElementById('showMeTheMoneyButton')
 const withdrawButton = document.getElementById('withdrawButton')
 const contractStatus = document.getElementById('contractStatus')
 
 // Send Eth Section
 const sendButton = document.getElementById('sendButton')
+const sendResult = document.getElementById('sendResult')
 
 // Send Tokens Section
 const tokenAddress = document.getElementById('tokenAddress')
@@ -47,6 +49,7 @@ const transferTokens = document.getElementById('transferTokens')
 const approveTokens = document.getElementById('approveTokens')
 const transferTokensWithoutGas = document.getElementById('transferTokensWithoutGas')
 const approveTokensWithoutGas = document.getElementById('approveTokensWithoutGas')
+const tokenResult = document.getElementById('tokenResult')
 
 // Encrypt / Decrypt Section
 const getEncryptionKeyButton = document.getElementById('getEncryptionKeyButton')
@@ -82,11 +85,6 @@ const initialize = async () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
     ethersProvider = new ethers.providers.Web3Provider(window.ethereum, 'any')
-    hstFactory = new ethers.ContractFactory(
-      hstAbi,
-      hstBytecode,
-      ethersProvider.getSigner(),
-    )
     piggybankFactory = new ethers.ContractFactory(
       piggybankAbi,
       piggybankBytecode,
@@ -105,6 +103,131 @@ const initialize = async () => {
 
   let accounts
   let accountButtonsInitialized = false
+
+  const tstTokenABI = [
+    {
+      constant: true,
+      inputs: [],
+      name: 'name',
+      outputs: [{ name: '', type: 'string' }],
+      payable: false,
+      type: 'function',
+    },
+    {
+      constant: false,
+      inputs: [
+        { name: '_spender', type: 'address' },
+        { name: '_value', type: 'uint256' },
+      ],
+      name: 'approve',
+      outputs: [{ name: 'success', type: 'bool' }],
+      payable: false,
+      type: 'function',
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'totalSupply',
+      outputs: [{ name: '', type: 'uint256' }],
+      payable: false,
+      type: 'function',
+    },
+    {
+      constant: false,
+      inputs: [
+        { name: '_from', type: 'address' },
+        { name: '_to', type: 'address' },
+        { name: '_value', type: 'uint256' },
+      ],
+      name: 'transferFrom',
+      outputs: [{ name: 'success', type: 'bool' }],
+      payable: false,
+      type: 'function',
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'decimals',
+      outputs: [{ name: '', type: 'uint256' }],
+      payable: false,
+      type: 'function',
+    },
+    {
+      constant: true,
+      inputs: [{ name: '_owner', type: 'address' }],
+      name: 'balanceOf',
+      outputs: [{ name: 'balance', type: 'uint256' }],
+      payable: false,
+      type: 'function',
+    },
+    {
+      constant: true,
+      inputs: [],
+      name: 'symbol',
+      outputs: [{ name: '', type: 'string' }],
+      payable: false,
+      type: 'function',
+    },
+    {
+      constant: false,
+      inputs: [
+        { name: '_to', type: 'address' },
+        { name: '_value', type: 'uint256' },
+      ],
+      name: 'showMeTheMoney',
+      outputs: [],
+      payable: false,
+      type: 'function',
+    },
+    {
+      constant: false,
+      inputs: [
+        { name: '_to', type: 'address' },
+        { name: '_value', type: 'uint256' },
+      ],
+      name: 'transfer',
+      outputs: [{ name: 'success', type: 'bool' }],
+      payable: false,
+      type: 'function',
+    },
+    {
+      constant: true,
+      inputs: [
+        { name: '_owner', type: 'address' },
+        { name: '_spender', type: 'address' },
+      ],
+      name: 'allowance',
+      outputs: [{ name: 'remaining', type: 'uint256' }],
+      payable: false,
+      type: 'function',
+    },
+    {
+      anonymous: false,
+      inputs: [
+        { indexed: true, name: '_from', type: 'address' },
+        { indexed: true, name: '_to', type: 'address' },
+        { indexed: false, name: '_value', type: 'uint256' },
+      ],
+      name: 'Transfer',
+      type: 'event',
+    },
+    {
+      anonymous: false,
+      inputs: [
+        { indexed: true, name: '_owner', type: 'address' },
+        { indexed: true, name: '_spender', type: 'address' },
+        { indexed: false, name: '_value', type: 'uint256' },
+      ],
+      name: 'Approval',
+      type: 'event',
+    },
+  ]
+
+  const tstTokenAdress = '0x722dd3F80BAC40c951b51BdD28Dd19d435762180'
+
+  const tokenContract = new ethers.Contract(tstTokenAdress, tstTokenABI, ethersProvider.getSigner())
+
+  tokenAddress.innerText = tstTokenAdress.toString()
 
   const accountButtons = [
     deployButton,
@@ -160,9 +283,9 @@ const initialize = async () => {
   const updateButtons = () => {
     const accountButtonsDisabled = !isMetaMaskInstalled() || !isMetaMaskConnected()
     if (accountButtonsDisabled) {
-      for (const button of accountButtons) {
-        button.disabled = true
-      }
+      // for (const button of accountButtons) {
+      //   button.disabled = true
+      // }
       clearTextDisplays()
     } else {
       deployButton.disabled = false
@@ -195,6 +318,20 @@ const initialize = async () => {
     }
   }
 
+
+  showMeTheMoneyButton.onclick = async () => {
+    const toAddress = '0x7E654d251Da770A068413677967F6d3Ea2FeA9E4' // get from input
+    const actualAmount = '1000000000000000000' // 18 decimals
+    try {
+      const result = await tokenContract.showMeTheMoney(toAddress, actualAmount)
+      console.log(result)
+      contractStatus.innerHTML = 'Called contract'
+    } catch (e) {
+      console.log(e)
+      contractStatus.innerHTML = e.message
+    }
+  }
+
   const initializeAccountButtons = () => {
 
     if (accountButtonsInitialized) {
@@ -205,6 +342,7 @@ const initialize = async () => {
     /**
      * Contract Interactions
      */
+
 
     deployButton.onclick = async () => {
       let contract
@@ -254,81 +392,41 @@ const initialize = async () => {
      */
 
     sendButton.onclick = async () => {
-      const result = await ethersProvider.getSigner().sendTransaction({
-        to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-        value: '0x29a2241af62c0000',
-        gasLimit: 21000,
-        gasPrice: 20000000000,
-      })
-      console.log(result)
+      try {
+        const result = await ethersProvider.getSigner().sendTransaction({
+          to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+          value: '0x100000000000000',
+          gasLimit: 21000,
+          gasPrice: 20000000000,
+        })
+        sendResult.innerText = 'success'
+      } catch (e) {
+        sendResult.innerText = e.message
+      }
     }
 
     /**
      * ERC20 Token
      */
 
-    createToken.onclick = async () => {
-      const _initialAmount = 100
-      const _tokenName = 'TST'
-      const _decimalUnits = 0
-      const _tokenSymbol = 'TST'
-
+    approveTokens.onclick = async () => {
       try {
-        const contract = await hstFactory.deploy(
-          _initialAmount,
-          _tokenName,
-          _decimalUnits,
-          _tokenSymbol,
-        )
-        await contract.deployTransaction.wait()
-        if (contract.address === undefined) {
-          return undefined
-        }
-
-        console.log(`Contract mined! address: ${contract.address} transactionHash: ${contract.transactionHash}`)
-        tokenAddress.innerHTML = contract.address
-        transferTokens.disabled = false
-        approveTokens.disabled = false
-        transferTokensWithoutGas.disabled = false
-        approveTokensWithoutGas.disabled = false
-
-        transferTokens.onclick = async () => {
-          const result = await contract.transfer('0x2f318C334780961FB129D2a6c30D0763d9a5C970', '15000', {
-            from: accounts[0],
-            gasLimit: 60000,
-            gasPrice: '20000000000',
-          })
-          console.log('result', result)
-        }
-
-        approveTokens.onclick = async () => {
-          const result = await contract.approve('0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4', '70000', {
-            from: accounts[0],
-            gasLimit: 60000,
-            gasPrice: '20000000000',
-          })
-          console.log(result)
-        }
-
-        transferTokensWithoutGas.onclick = async () => {
-          const result = await contract.transfer('0x2f318C334780961FB129D2a6c30D0763d9a5C970', '15000', {
-            gasPrice: '20000000000',
-          })
-          console.log('result', result)
-        }
-
-        approveTokensWithoutGas.onclick = async () => {
-          const result = await contract.approve('0x2f318C334780961FB129D2a6c30D0763d9a5C970', '70000', {
-            gasPrice: '20000000000',
-          })
-          console.log(result)
-        }
-
-        return contract
-      } catch (error) {
-        tokenAddress.innerHTML = 'Creation Failed'
-        throw error
+        const result = await tokenContract.approve('0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4', '70000', {
+          from: accounts[0],
+          gasLimit: 60000,
+          gasPrice: '20000000000',
+        })
+        tokenResult.innerText = 'Success!'
+      } catch (e) {
+        tokenResult.innerText = e.message
       }
+    }
+
+    transferTokensWithoutGas.onclick = async () => {
+      const result = await tokenContract.transfer('0x2f318C334780961FB129D2a6c30D0763d9a5C970', '15000', {
+        gasPrice: '20000000000',
+      })
+      console.log('result', result)
     }
 
     /**
@@ -701,31 +799,18 @@ const initialize = async () => {
     const msgParams = {
       domain: {
         chainId,
-        name: 'Ether Mail',
+        name: 'Test Stuff',
         verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
         version: '1',
       },
       message: {
-        contents: 'Hello, Bob!',
-        from: {
-          name: 'Cow',
-          wallets: [
-            '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
-            '0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF',
-          ],
+        contents: 'Hello, World!',
+        to: {
+          name: 'Bob',
+          wallet: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
         },
-        to: [
-          {
-            name: 'Bob',
-            wallets: [
-              '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
-              '0xB0BdaBea57B0BDABeA57b0bdABEA57b0BDabEa57',
-              '0xB0B0b0b0b0b0B000000000000000000000000000',
-            ],
-          },
-        ],
       },
-      primaryType: 'Mail',
+      primaryType: 'Message',
       types: {
         EIP712Domain: [
           { name: 'name', type: 'string' },
@@ -733,13 +818,20 @@ const initialize = async () => {
           { name: 'chainId', type: 'uint256' },
           { name: 'verifyingContract', type: 'address' },
         ],
-        Group: [{ name: 'name', type: 'string' }, { name: 'members', type: 'Person[]' }],
-        Mail: [
-          { name: 'from', type: 'Person' },
-          { name: 'to', type: 'Person[]' },
+        Message: [
           { name: 'contents', type: 'string' },
+          { name: 'to', type: 'Person' },
         ],
-        Person: [{ name: 'name', type: 'string' }, { name: 'wallets', type: 'address[]' }],
+        Person: [
+          {
+            'name': 'name',
+            'type': 'string',
+          },
+          {
+            'name': 'wallet',
+            'type': 'address',
+          },
+        ],
       },
     }
     try {
@@ -765,31 +857,18 @@ const initialize = async () => {
     const msgParams = {
       domain: {
         chainId,
-        name: 'Ether Mail',
+        name: 'Test Stuff',
         verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
         version: '1',
       },
       message: {
-        contents: 'Hello, Bob!',
-        from: {
-          name: 'Cow',
-          wallets: [
-            '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
-            '0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF',
-          ],
+        contents: 'Hello, World!',
+        to: {
+          name: 'Bob',
+          wallet: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
         },
-        to: [
-          {
-            name: 'Bob',
-            wallets: [
-              '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
-              '0xB0BdaBea57B0BDABeA57b0bdABEA57b0BDabEa57',
-              '0xB0B0b0b0b0b0B000000000000000000000000000',
-            ],
-          },
-        ],
       },
-      primaryType: 'Mail',
+      primaryType: 'Message',
       types: {
         EIP712Domain: [
           { name: 'name', type: 'string' },
@@ -797,13 +876,20 @@ const initialize = async () => {
           { name: 'chainId', type: 'uint256' },
           { name: 'verifyingContract', type: 'address' },
         ],
-        Group: [{ name: 'name', type: 'string' }, { name: 'members', type: 'Person[]' }],
-        Mail: [
-          { name: 'from', type: 'Person' },
-          { name: 'to', type: 'Person[]' },
+        Message: [
           { name: 'contents', type: 'string' },
+          { name: 'to', type: 'Person' },
         ],
-        Person: [{ name: 'name', type: 'string' }, { name: 'wallets', type: 'address[]' }],
+        Person: [
+          {
+            'name': 'name',
+            'type': 'string',
+          },
+          {
+            'name': 'wallet',
+            'type': 'address',
+          },
+        ],
       },
     }
     try {

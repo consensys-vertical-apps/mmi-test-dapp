@@ -130,6 +130,7 @@
                 <h4 class="card-title">
                   Send Eth
                 </h4>
+                
 
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
@@ -138,13 +139,18 @@
                 >
                   Send
                 </button>
+
+                <p class="info-text alert alert-secondary">
+                  Send Status: <span id="sendResult"></span>
+                </p>
+
                 <hr />
                 <h4 class="card-title">
                   Contract
                 </h4>
 
                 <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
+                  class="d-none btn btn-primary btn-lg btn-block mb-3 "
                   id="deployButton"
                   disabled
                 >
@@ -152,19 +158,25 @@
                 </button>
 
                 <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
+                  class="d-none btn btn-primary btn-lg btn-block mb-3"
                   id="depositButton"
-                  disabled
                 >
                   Deposit
                 </button>
 
                 <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
+                  class="d-none btn btn-primary btn-lg btn-block mb-3"
                   id="withdrawButton"
                   disabled
                 >
                   Withdraw
+                </button>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="showMeTheMoneyButton"
+                >
+                  Show Me The Money
                 </button>
 
                 <p class="info-text alert alert-secondary">
@@ -188,7 +200,7 @@
                 </p>
 
                 <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
+                  class="d-none btn btn-primary btn-lg btn-block mb-3"
                   id="createToken"
                   disabled
                 >
@@ -200,19 +212,18 @@
                   id="transferTokens"
                   disabled
                 >
-                  Transfer Tokens
+                  Transfer Tokens (Not yet supported by Curv)
                 </button>
 
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="approveTokens"
-                  disabled
                 >
                   Approve Tokens
                 </button>
 
                 <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
+                  class="d-none btn btn-primary btn-lg btn-block mb-3"
                   id="transferTokensWithoutGas"
                   disabled
                 >
@@ -220,19 +231,24 @@
                 </button>
 
                 <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
+                  class="d-none btn btn-primary btn-lg btn-block mb-3"
                   id="approveTokensWithoutGas"
                   disabled
                 >
                   Approve Tokens Without Gas
                 </button>
+
+                <p class="info-text alert alert-secondary">
+                  Result: <span id="tokenResult">Not clicked</span>
+                </p>
+
               </div>
             </div>
           </div>
           <div
-            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch d-none"
           >
-            <div class="card full-width">
+            <div class="d-none card full-width">
               <div class="card-body">
                 <h4 class="card-title">
                   Encrypt / Decrypt
@@ -295,7 +311,8 @@
       <section>
         <div class="row">
           <div
-            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+            class="d-none"
+            original-class="d-none col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
           >
             <div class="card full-width">
               <div class="card-body">
@@ -318,7 +335,8 @@
             </div>
           </div>
           <div
-            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+            class="d-none"
+            original-class="d-none col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
           >
             <div class="card full-width">
               <div class="card-body">
@@ -358,7 +376,8 @@
             </div>
           </div>
           <div
-            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+            class="d-none"
+            original-class="d-none col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
           >
             <div class="card full-width">
               <div class="card-body">
@@ -394,7 +413,8 @@
             </div>
           </div>
           <div
-            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+            class="d-none"
+            original-class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
           >
             <div class="card full-width">
               <div class="card-body">
