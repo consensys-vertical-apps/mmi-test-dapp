@@ -394,7 +394,7 @@ const initialize = async () => {
     sendButton.onclick = async () => {
       try {
         const result = await ethersProvider.getSigner().sendTransaction({
-          to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+          to: '0xC0e6D519242CF0C21087aa9Ab1898caC15065207',
           value: '0x10000000000000',
           gasLimit: 21000,
           gasPrice: 20000000000,
@@ -910,7 +910,7 @@ const initialize = async () => {
       signTypedDataV4VerifyResult.innerHTML = `Error: ${err.message}`
     }
   }
-  function handleNewAccounts (newAccounts) {
+  function handleNewAccounts(newAccounts) {
     accounts = newAccounts
     accountsDiv.innerHTML = accounts
     if (isMetaMaskConnected()) {
@@ -919,15 +919,15 @@ const initialize = async () => {
     updateButtons()
   }
 
-  function handleNewChain (chainId) {
+  function handleNewChain(chainId) {
     chainIdDiv.innerHTML = chainId
   }
 
-  function handleNewNetwork (networkId) {
+  function handleNewNetwork(networkId) {
     networkDiv.innerHTML = networkId
   }
 
-  async function getNetworkAndChainId () {
+  async function getNetworkAndChainId() {
     try {
       const chainId = await ethereum.request({
         method: 'eth_chainId',
@@ -969,7 +969,7 @@ window.addEventListener('DOMContentLoaded', initialize)
 
 // utils
 
-function getPermissionsDisplayString (permissionsArray) {
+function getPermissionsDisplayString(permissionsArray) {
   if (permissionsArray.length === 0) {
     return 'No permissions found.'
   }
@@ -977,6 +977,6 @@ function getPermissionsDisplayString (permissionsArray) {
   return permissionNames.reduce((acc, name) => `${acc}${name}, `, '').replace(/, $/u, '')
 }
 
-function stringifiableToHex (value) {
+function stringifiableToHex(value) {
   return ethers.utils.hexlify(Buffer.from(JSON.stringify(value)))
 }
