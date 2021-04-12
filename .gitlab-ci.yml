@@ -8,7 +8,7 @@ pages:
     - rm -rf public
     - mkdir public
     - yarn
-    - yarn dist
+    - yarn build
     - cp -r dist/* public
     - cp dist/index.html dist/404.html
   tags:
