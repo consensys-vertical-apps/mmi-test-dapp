@@ -35,6 +35,7 @@ const permissionsResult = document.getElementById('permissionsResult')
 const deployButton = document.getElementById('deployButton')
 const depositButton = document.getElementById('depositButton')
 const showMeTheMoneyButton = document.getElementById('showMeTheMoneyButton')
+const showMeTheMoneyButtonKovan = document.getElementById('showMeTheMoneyButton_kovan')
 const withdrawButton = document.getElementById('withdrawButton')
 const contractStatus = document.getElementById('contractStatus')
 
@@ -227,6 +228,11 @@ const initialize = async () => {
 
   const tokenContract = new ethers.Contract(tstTokenAdress, tstTokenABI, ethersProvider.getSigner())
 
+  const javierCoinAdresss = '0xF4312f38f1139C2aa1c1dA54EF38F9ef1628dcB9'
+
+  const tokenContract_kovan = new ethers.Contract(javierCoinAdresss, tstTokenABI, ethersProvider.getSigner())
+
+
   tokenAddress.innerText = tstTokenAdress.toString()
 
   const accountButtons = [
@@ -324,6 +330,21 @@ const initialize = async () => {
     const actualAmount = '1000000000000000000' // 18 decimals
     try {
       const result = await tokenContract.showMeTheMoney(toAddress, actualAmount)
+      console.log(result)
+      contractStatus.innerHTML = 'Called contract'
+    } catch (e) {
+      console.log(e)
+      contractStatus.innerHTML = e.message
+    }
+  }
+
+
+
+  showMeTheMoneyButtonKovan.onclick = async () => {
+    const toAddress = '0x7E654d251Da770A068413677967F6d3Ea2FeA9E4' // get from input
+    const actualAmount = '1000000000000000000' // 18 decimals
+    try {
+      const result = await tokenContract_kovan.showMeTheMoney(toAddress, actualAmount)
       console.log(result)
       contractStatus.innerHTML = 'Called contract'
     } catch (e) {
