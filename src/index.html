@@ -494,7 +494,36 @@
             </div>
           </div>
         </div>
+
+        <div
+            class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+          >
+            <div class="card full-width">
+              <div class="card-body">
+                <h4 class="card-title">
+                  Sign in to compliance
+                </h4>
+
+                <p class="info-text alert alert-success">
+                  Token: <input name="compliance-api-key" id="complianceApiKey" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVVUlEIjoiZTM5ODZjY2MtZDUyYy00M2MxLWIxZDQtMDdiZjhhM2NlOTgxIn0.nhB4eoYeFb248lDNU1lxt011QtZF2AqzU_YTxX89ifs" />
+                </p>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="complianceButton"
+                 >
+                  Add token
+                </button>
+
+                <p class="info-text alert alert-secondary">
+                  Result: <span id="complianceResult">Not clicked</span>
+                </p>
+
+              </div>
+            </div>
+          </div>
       </section>
+      
     </main>
 
     <script src="bundle.js" defer></script>

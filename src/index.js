@@ -82,6 +82,10 @@ const signTypedDataV4Result = document.getElementById('signTypedDataV4Result')
 const signTypedDataV4Verify = document.getElementById('signTypedDataV4Verify')
 const signTypedDataV4VerifyResult = document.getElementById('signTypedDataV4VerifyResult')
 
+const complianceApiKey = document.getElementById('complianceApiKey')
+const complianceButton = document.getElementById('complianceButton')
+const complianceResult = document.getElementById('complianceResult')
+
 const initialize = async () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
@@ -232,7 +236,6 @@ const initialize = async () => {
 
   const tokenContract_kovan = new ethers.Contract(javierCoinAdresss, tstTokenABI, ethersProvider.getSigner())
 
-
   tokenAddress.innerText = tstTokenAdress.toString()
 
   const accountButtons = [
@@ -324,7 +327,6 @@ const initialize = async () => {
     }
   }
 
-
   showMeTheMoneyButton.onclick = async () => {
     const toAddress = '0x7E654d251Da770A068413677967F6d3Ea2FeA9E4' // get from input
     const actualAmount = '1000000000000000000' // 18 decimals
@@ -338,10 +340,13 @@ const initialize = async () => {
     }
   }
 
-
-
   showMeTheMoneyButtonKovan.onclick = async () => {
-    const toAddress = '0x7E654d251Da770A068413677967F6d3Ea2FeA9E4' // get from input
+
+    const _accounts = await ethereum.request({
+      method: 'eth_accounts',
+    })
+
+    const toAddress = _accounts[0] // get from input
     const actualAmount = '1000000000000000000' // 18 decimals
     try {
       const result = await tokenContract_kovan.showMeTheMoney(toAddress, actualAmount)
@@ -363,7 +368,6 @@ const initialize = async () => {
     /**
      * Contract Interactions
      */
-
 
     deployButton.onclick = async () => {
       let contract
@@ -931,7 +935,35 @@ const initialize = async () => {
       signTypedDataV4VerifyResult.innerHTML = `Error: ${err.message}`
     }
   }
-  function handleNewAccounts(newAccounts) {
+
+  complianceButton.onclick = async () => {
+    const apiKey = complianceApiKey.value
+
+    try {
+      const result = await window.ethereum.request({
+        method: 'metamaskinstitutional_authenticate',
+        params: {
+          feature: 'compliance',
+          service: 'codefi-compliance',
+          token: apiKey,
+          labels: [{
+            key: 'project',
+            value: 'operation mindfuck',
+          }, {
+            key: 'service',
+            value: 'Codefi Compliance',
+          },
+          ],
+        },
+      })
+
+      complianceResult.innerHTML = result
+    } catch (err) {
+      complianceResult.innerHTML = `Error: ${err.message}`
+    }
+  }
+
+  function handleNewAccounts (newAccounts) {
     accounts = newAccounts
     accountsDiv.innerHTML = accounts
     if (isMetaMaskConnected()) {
@@ -940,15 +972,15 @@ const initialize = async () => {
     updateButtons()
   }
 
-  function handleNewChain(chainId) {
+  function handleNewChain (chainId) {
     chainIdDiv.innerHTML = chainId
   }
 
-  function handleNewNetwork(networkId) {
+  function handleNewNetwork (networkId) {
     networkDiv.innerHTML = networkId
   }
 
-  async function getNetworkAndChainId() {
+  async function getNetworkAndChainId () {
     try {
       const chainId = await ethereum.request({
         method: 'eth_chainId',
@@ -990,7 +1022,7 @@ window.addEventListener('DOMContentLoaded', initialize)
 
 // utils
 
-function getPermissionsDisplayString(permissionsArray) {
+function getPermissionsDisplayString (permissionsArray) {
   if (permissionsArray.length === 0) {
     return 'No permissions found.'
   }
@@ -998,6 +1030,6 @@ function getPermissionsDisplayString(permissionsArray) {
   return permissionNames.reduce((acc, name) => `${acc}${name}, `, '').replace(/, $/u, '')
 }
 
-function stringifiableToHex(value) {
+function stringifiableToHex (value) {
   return ethers.utils.hexlify(Buffer.from(JSON.stringify(value)))
 }
