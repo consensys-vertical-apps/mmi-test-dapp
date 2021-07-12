@@ -82,7 +82,7 @@ const signTypedDataV4Result = document.getElementById('signTypedDataV4Result')
 const signTypedDataV4Verify = document.getElementById('signTypedDataV4Verify')
 const signTypedDataV4VerifyResult = document.getElementById('signTypedDataV4VerifyResult')
 
-const complianceApiKey = document.getElementById('complianceApiKey')
+const complianceProjectId = document.getElementById('complianceProjectId')
 const complianceButton = document.getElementById('complianceButton')
 const complianceResult = document.getElementById('complianceResult')
 
@@ -937,22 +937,24 @@ const initialize = async () => {
   }
 
   complianceButton.onclick = async () => {
-    const apiKey = complianceApiKey.value
+    const projectId = complianceProjectId.value
 
     try {
       const result = await window.ethereum.request({
-        method: 'metamaskinstitutional_authenticate',
-        params: {
-          feature: 'compliance',
-          service: 'codefi-compliance',
-          token: apiKey,
-          labels: [{
-            key: 'project',
-            value: 'operation mindfuck',
-          }, {
-            key: 'service',
-            value: 'Codefi Compliance',
+        'method': 'metamaskinstitutional_authenticate',
+        'params': {
+          'origin': 'mmitest.compliance.codefi.network',
+          'token': {
+            'clientId': '5kQHg48BQJR2QuGTs1EX4V5OJZI8RA2k',
+            projectId,
           },
+          'feature': 'compliance',
+          'service': 'codefi-compliance',
+          'labels': [
+            {
+              'key': 'service',
+              'value': 'Codefi Compliance',
+            },
           ],
         },
       })
