@@ -36,6 +36,7 @@ const deployButton = document.getElementById('deployButton')
 const depositButton = document.getElementById('depositButton')
 const showMeTheMoneyButton = document.getElementById('showMeTheMoneyButton')
 const showMeTheMoneyButtonKovan = document.getElementById('showMeTheMoneyButton_kovan')
+const showMeTheMoneyButtonRinkeby = document.getElementById('showMeTheMoneyButton_rinkeby')
 const withdrawButton = document.getElementById('withdrawButton')
 const contractStatus = document.getElementById('contractStatus')
 
@@ -234,7 +235,12 @@ const initialize = async () => {
 
   const javierCoinAdresss = '0xF4312f38f1139C2aa1c1dA54EF38F9ef1628dcB9'
 
+  // eslint-disable-next-line camelcase
   const tokenContract_kovan = new ethers.Contract(javierCoinAdresss, tstTokenABI, ethersProvider.getSigner())
+
+  const javierCoinAddressRinkeby = '0xfa7d31e376a785837496f2d27454a53520e23994'
+
+  const tokenContract_rinkeby = new ethers.Contract(javierCoinAddressRinkeby, tstTokenABI, ethersProvider.getSigner())
 
   tokenAddress.innerText = tstTokenAdress.toString()
 
@@ -350,6 +356,24 @@ const initialize = async () => {
     const actualAmount = '1000000000000000000' // 18 decimals
     try {
       const result = await tokenContract_kovan.showMeTheMoney(toAddress, actualAmount)
+      console.log(result)
+      contractStatus.innerHTML = 'Called contract'
+    } catch (e) {
+      console.log(e)
+      contractStatus.innerHTML = e.message
+    }
+  }
+
+  showMeTheMoneyButtonRinkeby.onclick = async () => {
+
+    const _accounts = await ethereum.request({
+      method: 'eth_accounts',
+    })
+
+    const toAddress = _accounts[0] // get from input
+    const actualAmount = '1000000000000000000' // 18 decimals
+    try {
+      const result = await tokenContract_rinkeby.showMeTheMoney(toAddress, actualAmount)
       console.log(result)
       contractStatus.innerHTML = 'Called contract'
     } catch (e) {
@@ -954,6 +978,10 @@ const initialize = async () => {
             {
               'key': 'service',
               'value': 'Codefi Compliance',
+            },
+            {
+              'key': 'token.projectId',
+              'value': 'Some project name',
             },
           ],
         },
