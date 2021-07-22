@@ -84,6 +84,8 @@ const signTypedDataV4Verify = document.getElementById('signTypedDataV4Verify')
 const signTypedDataV4VerifyResult = document.getElementById('signTypedDataV4VerifyResult')
 
 const complianceProjectId = document.getElementById('complianceProjectId')
+const complianceClientId = document.getElementById('complianceClientId')
+
 const complianceButton = document.getElementById('complianceButton')
 const complianceResult = document.getElementById('complianceResult')
 
@@ -962,6 +964,7 @@ const initialize = async () => {
 
   complianceButton.onclick = async () => {
     const projectId = complianceProjectId.value
+    const clientId = complianceClientId.value
 
     try {
       const result = await window.ethereum.request({
@@ -969,7 +972,7 @@ const initialize = async () => {
         'params': {
           'origin': 'mmitest.compliance.codefi.network',
           'token': {
-            'clientId': '5kQHg48BQJR2QuGTs1EX4V5OJZI8RA2k',
+            clientId,
             projectId,
           },
           'feature': 'compliance',
