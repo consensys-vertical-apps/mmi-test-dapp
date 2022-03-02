@@ -1,20 +1,30 @@
-# This file is a template, and might need editing before it works on your project.
-# Full project: https://gitlab.com/pages/plain-html
-image: node:14
+include:
+  - project: consensys/codefi/infrastructure/gitlab-templates
+    ref: v4.1.1
+    file: common/workflow.yml
+  - project: consensys/codefi/infrastructure/gitlab-templates
+    ref: v4.1.1
+    file: common/build-us.yml
+  - project: consensys/codefi/infrastructure/gitlab-templates
+    ref: v4.1.1
+    file: common/scan-us.yml
+  - project: consensys/codefi/infrastructure/gitlab-templates
+    ref: v4.1.1
+    file: common/tag-us.yml
+  - project: consensys/codefi/infrastructure/gitlab-templates
+    ref: v4.1.1
+    file: common/push-us.yml
 
-pages:
-  stage: deploy
-  script:
-    - rm -rf public
-    - mkdir public
-    - yarn
-    - yarn build
-    - cp -r dist/* public
-    - cp dist/index.html dist/404.html
-  tags:
-    - eu-west-3
-  artifacts:
-    paths:
-      - public
-  only:
-    - master
+variables:
+  IGNORE_AUDIT: "true"
+  SONARQUBE_ALLOW_FAILURE: "true"
+  NODE_IMAGE: core-harbor.eu-west-3.codefi.network/proxy_cache/library/node:14
+  DOCKER_REGISTRY_PASSWORD: "$FOUNDATION_DOCKER_REGISTRY_PASSWORD"
+  DOCKER_REGISTRY_USER: "robot$$foundation-bot"
+  DOCKER_REGISTRY: "core-harbor.eu-west-3.codefi.network"
+
+stages:
+  - build
+  - scan
+  - push
+  - tag

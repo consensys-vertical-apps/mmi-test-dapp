@@ -89,6 +89,20 @@ const complianceClientId = document.getElementById('complianceClientId')
 const complianceButton = document.getElementById('complianceButton')
 const complianceResult = document.getElementById('complianceResult')
 
+// Verified Credentials
+const KYCAMLAttestationV1 = document.getElementById('KYCAMLAttestationV1')
+const KYBPAMLAttestation = document.getElementById('KYBPAMLAttestation')
+const credentialsDoesNotExist = document.getElementById('credentialsDoesNotExist')
+const requestVerifiedCredentials = document.getElementById('requestVerifiedCredentials')
+const requestVerifiedCredentialsResult = document.getElementById('requestVerifiedCredentialsResult')
+const requestedVerifyToken = document.getElementById('requestedVerifyToken')
+const requestVerifiedCredentialsVerify = document.getElementById('requestVerifiedCredentialsVerify')
+const requestVerifiedCredentialsVerifyResult = document.getElementById('requestVerifiedCredentialsVerifyResult')
+const requestedVerifyVC = document.getElementById('requestedVerifyVC')
+const requestVCVerify = document.getElementById('requestVCVerify')
+const requestVCVerifyResult = document.getElementById('requestVCVerifyResult')
+
+
 const initialize = async () => {
   try {
     // We must specify the network as 'any' for ethers to allow network changes
@@ -996,7 +1010,99 @@ const initialize = async () => {
     }
   }
 
-  function handleNewAccounts (newAccounts) {
+  /**
+   *  Verified Credentials
+   */
+  requestVerifiedCredentials.onclick = async () => {
+    const requestedCredentials = [
+      KYCAMLAttestationV1,
+      KYBPAMLAttestation,
+      credentialsDoesNotExist,
+    ].map(cb => {
+      if (cb.checked) {
+        return cb.id
+      }
+    })
+      .filter(Boolean)
+    const type = "jwt"
+
+    try {
+      const result = await window.ethereum.request({
+        method: "metamaskinstitutional_request_credentials",
+        params: {
+          requestedCredentials,
+          type,
+        },
+      });
+      requestVerifiedCredentialsResult.innerHTML = JSON.stringify(result, null, 2)
+
+      const lastCreatedJWTToken = result.KYCAMLAttestationV1.reverse().find(credentials => credentials.type === 'jwt')
+      const lastCreatedVC = result.KYCAMLAttestationV1.reverse().find(credentials => credentials.type === 'vc')
+
+      const jwt = lastCreatedJWTToken ? lastCreatedJWTToken.token : '';
+      const vc = JSON.stringify(lastCreatedVC ? lastCreatedVC.token : {});
+
+      requestedVerifyToken.value = jwt;
+      requestedVerifyVC.value = vc;
+
+    } catch (e) {
+      console.log({ e })
+      requestVerifiedCredentialsResult.innerHTML = JSON.stringify(e, null, 2)
+    }
+  }
+
+  requestVerifiedCredentialsVerify.onclick = async () => {
+    try {
+      const response = await fetch(
+        'http://localhost:3001' +
+        `/credentials/verify/jwt`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            token: requestedVerifyToken.value,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        requestVerifiedCredentialsVerifyResult.innerHTML = 'Verified'
+      } else {
+        requestVerifiedCredentialsVerifyResult.innerHTML = data.message
+      }
+    } catch (e) {
+      requestVerifiedCredentialsVerifyResult.innerHTML = JSON.stringify(e, null, 2)
+    }
+  }
+
+  requestVCVerify.onclick = async () => {
+    try {
+      const response = await fetch(
+        'http://localhost:3001' +
+        `/credentials/verify/vc`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(JSON.parse(requestedVerifyVC.value)),
+        }
+      );
+      const text = await response.text();
+      if (response.ok) {
+        requestVCVerifyResult.innerHTML = JSON.stringify(text.replace(/(\r\n|\n|\r)/gm, ""))
+      } else {
+        requestVCVerifyResult.innerHTML = JSON.stringify(text.replace(/(\r\n|\n|\r)/gm, ""))
+      }
+    } catch (e) {
+      console.log({ e })
+      requestVCVerifyResult.innerHTML = JSON.stringify(e, null, 2)
+    }
+  }
+
+  function handleNewAccounts(newAccounts) {
     accounts = newAccounts
     accountsDiv.innerHTML = accounts
     if (isMetaMaskConnected()) {
@@ -1005,15 +1111,15 @@ const initialize = async () => {
     updateButtons()
   }
 
-  function handleNewChain (chainId) {
+  function handleNewChain(chainId) {
     chainIdDiv.innerHTML = chainId
   }
 
-  function handleNewNetwork (networkId) {
+  function handleNewNetwork(networkId) {
     networkDiv.innerHTML = networkId
   }
 
-  async function getNetworkAndChainId () {
+  async function getNetworkAndChainId() {
     try {
       const chainId = await ethereum.request({
         method: 'eth_chainId',
@@ -1055,7 +1161,7 @@ window.addEventListener('DOMContentLoaded', initialize)
 
 // utils
 
-function getPermissionsDisplayString (permissionsArray) {
+function getPermissionsDisplayString(permissionsArray) {
   if (permissionsArray.length === 0) {
     return 'No permissions found.'
   }
@@ -1063,6 +1169,6 @@ function getPermissionsDisplayString (permissionsArray) {
   return permissionNames.reduce((acc, name) => `${acc}${name}, `, '').replace(/, $/u, '')
 }
 
-function stringifiableToHex (value) {
+function stringifiableToHex(value) {
   return ethers.utils.hexlify(Buffer.from(JSON.stringify(value)))
 }

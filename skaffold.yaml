@@ -1,0 +1,13 @@
+apiVersion: skaffold/v2beta7
+kind: Config
+metadata:
+  name: identity-poc-test-dapp
+build:
+  artifacts:
+    - image: core-harbor.eu-west-3.codefi.network/foundation/identity-poc-test-dapp
+      docker:
+        buildArgs:
+          NPM_PRIVATE_REGISTRY_TOKEN: '{{.NPM_PRIVATE_REGISTRY_TOKEN}}'
+          NPM_PRIVATE_REGISTRY_URL: '{{.NPM_PRIVATE_REGISTRY_URL}}'
+  local:
+    push: true
