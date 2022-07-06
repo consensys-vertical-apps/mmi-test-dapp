@@ -461,14 +461,17 @@ const initialize = async () => {
      */
 
     approveTokens.onclick = async () => {
+
       try {
-        const result = await tokenContract.approve('0x9bc5baF874d2DA8D216aE9f137804184EE5AfEF4', '70000', {
+        const result = await tokenContract_rinkeby.approve('0xfa7d31e376a785837496f2d27454a53520e23994', '70000', {
           from: accounts[0],
           gasLimit: 60000,
           gasPrice: '20000000000',
         })
+        console('result', result)
         tokenResult.innerText = 'Success!'
       } catch (e) {
+        console.error(e.message)
         tokenResult.innerText = e.message
       }
     }
