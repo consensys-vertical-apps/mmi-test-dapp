@@ -468,7 +468,7 @@ const initialize = async () => {
           gasLimit: 60000,
           gasPrice: '20000000000',
         })
-        console('result', result)
+        console.log('result', result)
         tokenResult.innerText = 'Success!'
       } catch (e) {
         console.error(e.message)
