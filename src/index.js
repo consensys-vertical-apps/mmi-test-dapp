@@ -83,6 +83,7 @@ const signTypedDataV4Result = document.getElementById('signTypedDataV4Result')
 const signTypedDataV4Verify = document.getElementById('signTypedDataV4Verify')
 const signTypedDataV4VerifyResult = document.getElementById('signTypedDataV4VerifyResult')
 
+const signTypedContentsId = document.getElementById('signTypedContentsId')
 const complianceProjectId = document.getElementById('complianceProjectId')
 const complianceClientId = document.getElementById('complianceClientId')
 
@@ -848,6 +849,7 @@ const initialize = async () => {
    * Sign Typed Data V4
    */
   signTypedDataV4.onclick = async () => {
+    const contents = signTypedContentsId.value
     const networkId = parseInt(networkDiv.innerHTML, 10)
     const chainId = parseInt(chainIdDiv.innerHTML, 16) || networkId
     const msgParams = {
@@ -858,7 +860,7 @@ const initialize = async () => {
         version: '1',
       },
       message: {
-        contents: 'Hello, World!',
+        contents,
         to: {
           name: 'Bob',
           wallet: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
