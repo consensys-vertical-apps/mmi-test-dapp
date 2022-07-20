@@ -41,3 +41,8 @@ header {
 #encryptMessageInput {
   margin-bottom: 1rem;
 }
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}

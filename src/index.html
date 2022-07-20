@@ -33,11 +33,17 @@
         <h3 class="card-title">
           Status
         </h3>
-
+        <div class="row">
+          <div class="col-12">
+            <p class="info-text alert alert-info text-center">
+              <span id="status"></span>
+            </p>
+          </div>
+        </div>
         <div class="row">
           <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
             <p class="info-text alert alert-primary">
-              Network: <span id="network"></span>
+              <span id="network"></span>
             </p>
           </div>
 
@@ -55,7 +61,7 @@
         </div>
       </section>
 
-      <section>
+      <section class="section-class">
         <div class="row d-flex justify-content-center">
           <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
             <div class="card">
@@ -88,7 +94,7 @@
         </div>
       </section>
 
-      <section>
+      <section class="section-class">
         <div class="row d-flex justify-content-center">
           <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
             <div class="card">
@@ -120,7 +126,7 @@
         </div>
       </section>
 
-      <section>
+      <section class="section-class">
         <div class="row">
           <div
             class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
@@ -188,9 +194,16 @@
 
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
-                  id="showMeTheMoneyButton_rinkeby"
+                  id="showMeTheMoneyButton_goerli"
                 >
-                  Show Me The Money (Rinkeby)
+                  Show Me The Money (Goerli)
+                </button>
+
+                <button
+                  class="btn btn-primary btn-lg btn-block mb-3"
+                  id="useSuperPowers_goerli"
+                >
+                  Use Super Powers (Gorli)
                 </button>
                 <p class="info-text alert alert-secondary">
                   Contract Status: <span id="contractStatus">Not clicked</span>
@@ -232,7 +245,7 @@
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="approveTokens"
                 >
-                  Approve Tokens (Rinkeby)
+                  Approve Tokens (Goerli)
                 </button>
 
                 <button
@@ -321,7 +334,7 @@
         </div>
       </section>
 
-      <section>
+      <section class="section-class">
         <div class="row">
           <div
             class="d-none"
