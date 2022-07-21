@@ -34,7 +34,7 @@ const chainIdDiv = document.getElementById('chainId')
 const accountsDiv = document.getElementById('accounts')
 
 // Basic Actions Section
-const onboardButton = document.getElementById('connectButton')
+const connectButton = document.getElementById('connectButton')
 const getAccountsButton = document.getElementById('getAccounts')
 const getAccountsResults = document.getElementById('getAccountsResult')
 
@@ -161,8 +161,8 @@ const initialize = async () => {
   const isMetaMaskConnected = () => accounts && accounts.length > 0
 
   const onClickInstall = () => {
-    onboardButton.innerText = 'Onboarding in progress'
-    onboardButton.disabled = true
+    connectButton.innerText = 'Onboarding in progress'
+    connectButton.disabled = true
     onboarding.startOnboarding()
   }
 
@@ -227,14 +227,13 @@ const initialize = async () => {
 
     if (!isMetaMaskInstalled()) {
       statusDiv.innerText = 'Click here to install MetaMask!'
-      onboardButton.innerText = 'Click here to install MetaMask!'
-      onboardButton.onclick = onClickInstall
-      onboardButton.disabled = false
+      connectButton.disabled = false
       toggleButtons(true)
     } else if (isMetaMaskConnected()) {
       statusDiv.innerText = 'Connected'
-      onboardButton.innerText = 'Connected'
-      onboardButton.disabled = true
+      connectButton.innerText = 'Connected'
+      connectButton.disabled = true
+      getAccountsButton.disabled = false
       toggleButtons(true)
       disableSections(false)
       if (onboarding) {
@@ -243,11 +242,16 @@ const initialize = async () => {
     // eslint-disable-next-line no-negated-condition
     } else if (!isMetaMaskConnected()) {
       statusDiv.innerText = 'Extension is blocked'
+      connectButton.disabled = false
+      getAccountsButton.disabled = true
+      connectButton.innerText = 'Connect'
+      connectButton.onclick = onClickConnect
       disableSections(true)
     } else {
       statusDiv.innerText = 'Connected'
-      onboardButton.innerText = 'Connect'
-      onboardButton.onclick = onClickConnect
+      connectButton.disabled = true
+      getAccountsButton.disabled = false
+      connectButton.innerText = 'Connected'
       disableSections(false)
     }
 
