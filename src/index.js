@@ -3,11 +3,20 @@ import MetaMaskOnboarding from '@metamask/onboarding'
 import { encrypt, recoverPersonalSignature, recoverTypedSignatureLegacy, recoverTypedSignature, recoverTypedSignature_v4 } from 'eth-sig-util'
 import { ethers } from 'ethers'
 import { toChecksumAddress } from 'ethereumjs-util'
-import { hstBytecode, hstAbi, piggybankBytecode, piggybankAbi } from './constants.json'
+import { piggybankBytecode, piggybankAbi } from '../bin/contracts/Piggybank.json'
+import { javierCoinAbi } from '../bin/contracts/JavierCoin.json'
+import { hasAnOwnerAbi } from '../bin/contracts/HasAnOwner.json'
+import { jhcAbi } from '../bin/contracts/JHC.json'
 
 let ethersProvider
-let hstFactory
 let piggybankFactory
+
+const NETWORKS = {
+  1: 'Mainnet',
+  4: 'Rinkeby',
+  5: 'Goerli',
+  42: 'Kovan',
+}
 
 const currentUrl = new URL(window.location.href)
 const forwarderOrigin = currentUrl.hostname === 'localhost'
@@ -16,7 +25,10 @@ const forwarderOrigin = currentUrl.hostname === 'localhost'
 
 const { isMetaMaskInstalled } = MetaMaskOnboarding
 
+const sectionClass = document.getElementsByClassName('section-class')
+
 // Dapp Status Section
+const statusDiv = document.getElementById('status')
 const networkDiv = document.getElementById('network')
 const chainIdDiv = document.getElementById('chainId')
 const accountsDiv = document.getElementById('accounts')
@@ -36,7 +48,8 @@ const deployButton = document.getElementById('deployButton')
 const depositButton = document.getElementById('depositButton')
 const showMeTheMoneyButton = document.getElementById('showMeTheMoneyButton')
 const showMeTheMoneyButtonKovan = document.getElementById('showMeTheMoneyButton_kovan')
-const showMeTheMoneyButtonRinkeby = document.getElementById('showMeTheMoneyButton_rinkeby')
+const showMeTheMoneyButtonGoerli = document.getElementById('showMeTheMoneyButton_goerli')
+const useSuperPowersGoerli = document.getElementById('useSuperPowers_goerli')
 const withdrawButton = document.getElementById('withdrawButton')
 const contractStatus = document.getElementById('contractStatus')
 
@@ -47,10 +60,8 @@ const sendResult = document.getElementById('sendResult')
 // Send Tokens Section
 const tokenAddress = document.getElementById('tokenAddress')
 const createToken = document.getElementById('createToken')
-const transferTokens = document.getElementById('transferTokens')
 const approveTokens = document.getElementById('approveTokens')
 const transferTokensWithoutGas = document.getElementById('transferTokensWithoutGas')
-const approveTokensWithoutGas = document.getElementById('approveTokensWithoutGas')
 const tokenResult = document.getElementById('tokenResult')
 
 // Encrypt / Decrypt Section
@@ -90,8 +101,25 @@ const complianceClientId = document.getElementById('complianceClientId')
 const complianceButton = document.getElementById('complianceButton')
 const complianceResult = document.getElementById('complianceResult')
 
+const disableSections = (disable) => {
+  for (let i = 0; i < sectionClass.length; i++) {
+    if (disable) {
+      sectionClass[i].classList.add('disabled')
+    } else {
+      sectionClass[i].classList.remove('disabled')
+    }
+  }
+}
+
 const initialize = async () => {
   try {
+    if (!isMetaMaskInstalled()) {
+      statusDiv.innerText = 'Please, install MetaMask!'
+      networkDiv.innerText = 'No network'
+      disableSections(true)
+      return
+    }
+
     // We must specify the network as 'any' for ethers to allow network changes
     ethersProvider = new ethers.providers.Web3Provider(window.ethereum, 'any')
     piggybankFactory = new ethers.ContractFactory(
@@ -113,164 +141,22 @@ const initialize = async () => {
   let accounts
   let accountButtonsInitialized = false
 
-  const tstTokenABI = [
-    {
-      constant: true,
-      inputs: [],
-      name: 'name',
-      outputs: [{ name: '', type: 'string' }],
-      payable: false,
-      type: 'function',
-    },
-    {
-      constant: false,
-      inputs: [
-        { name: '_spender', type: 'address' },
-        { name: '_value', type: 'uint256' },
-      ],
-      name: 'approve',
-      outputs: [{ name: 'success', type: 'bool' }],
-      payable: false,
-      type: 'function',
-    },
-    {
-      constant: true,
-      inputs: [],
-      name: 'totalSupply',
-      outputs: [{ name: '', type: 'uint256' }],
-      payable: false,
-      type: 'function',
-    },
-    {
-      constant: false,
-      inputs: [
-        { name: '_from', type: 'address' },
-        { name: '_to', type: 'address' },
-        { name: '_value', type: 'uint256' },
-      ],
-      name: 'transferFrom',
-      outputs: [{ name: 'success', type: 'bool' }],
-      payable: false,
-      type: 'function',
-    },
-    {
-      constant: true,
-      inputs: [],
-      name: 'decimals',
-      outputs: [{ name: '', type: 'uint256' }],
-      payable: false,
-      type: 'function',
-    },
-    {
-      constant: true,
-      inputs: [{ name: '_owner', type: 'address' }],
-      name: 'balanceOf',
-      outputs: [{ name: 'balance', type: 'uint256' }],
-      payable: false,
-      type: 'function',
-    },
-    {
-      constant: true,
-      inputs: [],
-      name: 'symbol',
-      outputs: [{ name: '', type: 'string' }],
-      payable: false,
-      type: 'function',
-    },
-    {
-      constant: false,
-      inputs: [
-        { name: '_to', type: 'address' },
-        { name: '_value', type: 'uint256' },
-      ],
-      name: 'showMeTheMoney',
-      outputs: [],
-      payable: false,
-      type: 'function',
-    },
-    {
-      constant: false,
-      inputs: [
-        { name: '_to', type: 'address' },
-        { name: '_value', type: 'uint256' },
-      ],
-      name: 'transfer',
-      outputs: [{ name: 'success', type: 'bool' }],
-      payable: false,
-      type: 'function',
-    },
-    {
-      constant: true,
-      inputs: [
-        { name: '_owner', type: 'address' },
-        { name: '_spender', type: 'address' },
-      ],
-      name: 'allowance',
-      outputs: [{ name: 'remaining', type: 'uint256' }],
-      payable: false,
-      type: 'function',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: true, name: '_from', type: 'address' },
-        { indexed: true, name: '_to', type: 'address' },
-        { indexed: false, name: '_value', type: 'uint256' },
-      ],
-      name: 'Transfer',
-      type: 'event',
-    },
-    {
-      anonymous: false,
-      inputs: [
-        { indexed: true, name: '_owner', type: 'address' },
-        { indexed: true, name: '_spender', type: 'address' },
-        { indexed: false, name: '_value', type: 'uint256' },
-      ],
-      name: 'Approval',
-      type: 'event',
-    },
-  ]
-
   const tstTokenAdress = '0x722dd3F80BAC40c951b51BdD28Dd19d435762180'
+  const javierCoinAdressKovan = '0xF4312f38f1139C2aa1c1dA54EF38F9ef1628dcB9'
+  const johannCoinCoinAddressGoerli = '0x7603A62b21A85f5cD02baE3389F35F1AcBaB0Ab2'
 
-  const tokenContract = new ethers.Contract(tstTokenAdress, tstTokenABI, ethersProvider.getSigner())
-
-  const javierCoinAdresss = '0xF4312f38f1139C2aa1c1dA54EF38F9ef1628dcB9'
+  const tokenContract = new ethers.Contract(tstTokenAdress, javierCoinAbi, ethersProvider.getSigner())
 
   // eslint-disable-next-line camelcase
-  const tokenContract_kovan = new ethers.Contract(javierCoinAdresss, tstTokenABI, ethersProvider.getSigner())
+  const tokenContract_kovan = new ethers.Contract(javierCoinAdressKovan, javierCoinAbi, ethersProvider.getSigner())
 
-  const javierCoinAddressRinkeby = '0xfa7d31e376a785837496f2d27454a53520e23994'
+  // eslint-disable-next-line camelcase
+  const tokenContract_goerli = new ethers.Contract(johannCoinCoinAddressGoerli, jhcAbi, ethersProvider.getSigner())
 
-  const tokenContract_rinkeby = new ethers.Contract(javierCoinAddressRinkeby, tstTokenABI, ethersProvider.getSigner())
+  // eslint-disable-next-line camelcase
+  const hasOwnerContract_goerli = new ethers.Contract(johannCoinCoinAddressGoerli, hasAnOwnerAbi, ethersProvider.getSigner())
 
   tokenAddress.innerText = tstTokenAdress.toString()
-
-  const accountButtons = [
-    deployButton,
-    depositButton,
-    withdrawButton,
-    sendButton,
-    createToken,
-    transferTokens,
-    approveTokens,
-    transferTokensWithoutGas,
-    approveTokensWithoutGas,
-    getEncryptionKeyButton,
-    encryptMessageInput,
-    encryptButton,
-    decryptButton,
-    ethSign,
-    personalSign,
-    personalSignVerify,
-    signTypedData,
-    signTypedDataVerify,
-    signTypedDataV3,
-    signTypedDataV3Verify,
-    signTypedDataV4,
-    signTypedDataV4Verify,
-  ]
 
   const isMetaMaskConnected = () => accounts && accounts.length > 0
 
@@ -296,44 +182,76 @@ const initialize = async () => {
     encryptMessageInput.value = ''
     ciphertextDisplay.innerText = ''
     cleartextDisplay.innerText = ''
+    statusDiv.innerText = ''
   }
 
-  const updateButtons = () => {
-    const accountButtonsDisabled = !isMetaMaskInstalled() || !isMetaMaskConnected()
-    if (accountButtonsDisabled) {
-      // for (const button of accountButtons) {
-      //   button.disabled = true
-      // }
-      clearTextDisplays()
+  const toggleButtons = (toogle, networkId) => {
+    deployButton.disabled = toogle
+    sendButton.disabled = toogle
+    createToken.disabled = toogle
+    getEncryptionKeyButton.disabled = toogle
+    ethSign.disabled = toogle
+    personalSign.disabled = toogle
+    signTypedData.disabled = toogle
+    signTypedDataV3.disabled = toogle
+    signTypedDataV4.disabled = toogle
+
+    if (networkId === 4) {
+      showMeTheMoneyButton.disabled = false
+    } else if (networkId === 5) {
+      showMeTheMoneyButtonGoerli.disabled = false
+      useSuperPowersGoerli.disabled = false
+      approveTokens.disabled = false
+    } else if (networkId === 42) {
+      showMeTheMoneyButtonKovan.disabled = false
     } else {
-      deployButton.disabled = false
-      sendButton.disabled = false
-      createToken.disabled = false
-      personalSign.disabled = false
-      signTypedData.disabled = false
-      getEncryptionKeyButton.disabled = false
-      ethSign.disabled = false
-      personalSign.disabled = false
-      signTypedData.disabled = false
-      signTypedDataV3.disabled = false
-      signTypedDataV4.disabled = false
+      showMeTheMoneyButton.disabled = NETWORKS[networkId] ? toogle : true
+      showMeTheMoneyButtonKovan.disabled = NETWORKS[networkId] ? toogle : true
+      showMeTheMoneyButtonGoerli.disabled = NETWORKS[networkId] ? toogle : true
+      useSuperPowersGoerli.disabled = NETWORKS[networkId] ? toogle : true
+      approveTokens.disabled = NETWORKS[networkId] ? toogle : true
+    }
+  }
+
+  const updateButtons = async () => {
+    const networkId = Number(await ethereum.request({
+      method: 'net_version',
+    }))
+    const accountButtonsDisabled = !isMetaMaskInstalled() || !isMetaMaskConnected() || networkId === 1
+    if (accountButtonsDisabled) {
+      clearTextDisplays()
+      toggleButtons(true)
+    } else {
+      toggleButtons(false)
     }
 
     if (!isMetaMaskInstalled()) {
+      statusDiv.innerText = 'Click here to install MetaMask!'
       onboardButton.innerText = 'Click here to install MetaMask!'
       onboardButton.onclick = onClickInstall
       onboardButton.disabled = false
+      toggleButtons(true)
     } else if (isMetaMaskConnected()) {
+      statusDiv.innerText = 'Connected'
       onboardButton.innerText = 'Connected'
       onboardButton.disabled = true
+      toggleButtons(true)
+      disableSections(false)
       if (onboarding) {
         onboarding.stopOnboarding()
       }
+    // eslint-disable-next-line no-negated-condition
+    } else if (!isMetaMaskConnected()) {
+      statusDiv.innerText = 'Extension is blocked'
+      disableSections(true)
     } else {
+      statusDiv.innerText = 'Connected'
       onboardButton.innerText = 'Connect'
       onboardButton.onclick = onClickConnect
-      onboardButton.disabled = false
+      disableSections(false)
     }
+
+    toggleButtons(Boolean(networkId === 1 || !isMetaMaskConnected()), networkId)
   }
 
   showMeTheMoneyButton.onclick = async () => {
@@ -367,7 +285,7 @@ const initialize = async () => {
     }
   }
 
-  showMeTheMoneyButtonRinkeby.onclick = async () => {
+  showMeTheMoneyButtonGoerli.onclick = async () => {
 
     const _accounts = await ethereum.request({
       method: 'eth_accounts',
@@ -376,7 +294,20 @@ const initialize = async () => {
     const toAddress = _accounts[0] // get from input
     const actualAmount = '1000000000000000000' // 18 decimals
     try {
-      const result = await tokenContract_rinkeby.showMeTheMoney(toAddress, actualAmount)
+      const result = await tokenContract_goerli.showMeTheMoney(toAddress, actualAmount)
+      console.log(result)
+      contractStatus.innerHTML = 'Called contract'
+    } catch (e) {
+      console.log(e)
+      contractStatus.innerHTML = e.message
+    }
+  }
+
+  useSuperPowersGoerli.onclick = async () => {
+    try {
+      const result = await hasOwnerContract_goerli.useSuperPowers({
+        gasLimit: 50000,
+      })
       console.log(result)
       contractStatus.innerHTML = 'Called contract'
     } catch (e) {
@@ -452,6 +383,7 @@ const initialize = async () => {
           gasPrice: 20000000000,
         })
         sendResult.innerText = 'success'
+        console.log(result)
       } catch (e) {
         sendResult.innerText = e.message
       }
@@ -462,9 +394,8 @@ const initialize = async () => {
      */
 
     approveTokens.onclick = async () => {
-
       try {
-        const result = await tokenContract_rinkeby.approve('0xfa7d31e376a785837496f2d27454a53520e23994', '70000', {
+        const result = await tokenContract_goerli.approve('0xfa7d31e376a785837496f2d27454a53520e23994', '70000', {
           from: accounts[0],
           gasLimit: 60000,
           gasPrice: '20000000000',
@@ -1015,7 +946,8 @@ const initialize = async () => {
   }
 
   function handleNewNetwork (networkId) {
-    networkDiv.innerHTML = networkId
+    networkDiv.innerHTML = `Currently on network ${networkId} (${NETWORKS[networkId]})`
+    updateButtons()
   }
 
   async function getNetworkAndChainId () {
