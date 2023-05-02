@@ -843,6 +843,8 @@ const initialize = async () => {
    *  Sign Typed Data V4 Verification
    */
   signTypedDataV4Verify.onclick = async () => {
+    const contents = signTypedContentsId.value
+
     const networkId = parseInt(networkDiv.innerHTML, 10)
     const chainId = parseInt(chainIdDiv.innerHTML, 16) || networkId
     const msgParams = {
@@ -853,7 +855,7 @@ const initialize = async () => {
         version: '1',
       },
       message: {
-        contents: 'Hello, World!',
+        contents,
         to: {
           name: 'Bob',
           wallet: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
