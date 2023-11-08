@@ -1,4 +1,3 @@
-# Lines starting with '#' are comments.
-# Each line is a file pattern followed by one or more owners.
+* @consensys-vertical-apps/directu-mmi-developer @consensys-vertical-apps/directu-mmi-dso @consensys-vertical-apps/directu-mmi-sre @consensys-vertical-apps/directu-mmi-techlead
 
-*                                    @MetaMask/devs
+.github/** @consensys-vertical-apps/directu-mmi-dso @consensys-vertical-apps/directu-mmi-sre @consensys-vertical-apps/directu-mmi-techlead
