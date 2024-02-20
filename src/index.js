@@ -13,9 +13,8 @@ let piggybankFactory
 
 const NETWORKS = {
   1: 'Mainnet',
-  4: 'Rinkeby',
   5: 'Goerli',
-  42: 'Kovan',
+  11155111: 'Sepolia',
 }
 
 const currentUrl = new URL(window.location.href)
@@ -47,9 +46,10 @@ const permissionsResult = document.getElementById('permissionsResult')
 const deployButton = document.getElementById('deployButton')
 const depositButton = document.getElementById('depositButton')
 const showMeTheMoneyButton = document.getElementById('showMeTheMoneyButton')
-const showMeTheMoneyButtonKovan = document.getElementById('showMeTheMoneyButton_kovan')
 const showMeTheMoneyButtonGoerli = document.getElementById('showMeTheMoneyButton_goerli')
 const useSuperPowersGoerli = document.getElementById('useSuperPowers_goerli')
+const showMeTheMoneyButtonSepolia = document.getElementById('showMeTheMoneyButton_sepolia')
+const useSuperPowersSepolia = document.getElementById('useSuperPowers_sepolia')
 const withdrawButton = document.getElementById('withdrawButton')
 const contractStatus = document.getElementById('contractStatus')
 
@@ -142,19 +142,22 @@ const initialize = async () => {
   let accountButtonsInitialized = false
 
   const tstTokenAdress = '0x722dd3F80BAC40c951b51BdD28Dd19d435762180'
-  const javierCoinAdressKovan = '0xF4312f38f1139C2aa1c1dA54EF38F9ef1628dcB9'
   const johannCoinCoinAddressGoerli = '0x7603A62b21A85f5cD02baE3389F35F1AcBaB0Ab2'
+  const johannCoinCoinAddressSepolia = '0xfe7A0f0c76c136b9B438DCB27de9a1b618c016Fc'
 
   const tokenContract = new ethers.Contract(tstTokenAdress, javierCoinAbi, ethersProvider.getSigner())
-
-  // eslint-disable-next-line camelcase
-  const tokenContract_kovan = new ethers.Contract(javierCoinAdressKovan, javierCoinAbi, ethersProvider.getSigner())
 
   // eslint-disable-next-line camelcase
   const tokenContract_goerli = new ethers.Contract(johannCoinCoinAddressGoerli, jhcAbi, ethersProvider.getSigner())
 
   // eslint-disable-next-line camelcase
   const hasOwnerContract_goerli = new ethers.Contract(johannCoinCoinAddressGoerli, hasAnOwnerAbi, ethersProvider.getSigner())
+
+  // eslint-disable-next-line camelcase
+  const tokenContract_sepolia = new ethers.Contract(johannCoinCoinAddressSepolia, jhcAbi, ethersProvider.getSigner())
+
+  // eslint-disable-next-line camelcase
+  const hasOwnerContract_sepolia = new ethers.Contract(johannCoinCoinAddressSepolia, hasAnOwnerAbi, ethersProvider.getSigner())
 
   tokenAddress.innerText = tstTokenAdress.toString()
 
@@ -202,13 +205,16 @@ const initialize = async () => {
       showMeTheMoneyButtonGoerli.disabled = false
       useSuperPowersGoerli.disabled = false
       approveTokens.disabled = false
-    } else if (networkId === 42) {
-      showMeTheMoneyButtonKovan.disabled = false
+    } else if (networkId === 11155111) {
+      showMeTheMoneyButtonSepolia.disabled = false
+      useSuperPowersSepolia.disabled = false
+      approveTokens.disabled = false
     } else {
       showMeTheMoneyButton.disabled = NETWORKS[networkId] ? toogle : true
-      showMeTheMoneyButtonKovan.disabled = NETWORKS[networkId] ? toogle : true
       showMeTheMoneyButtonGoerli.disabled = NETWORKS[networkId] ? toogle : true
       useSuperPowersGoerli.disabled = NETWORKS[networkId] ? toogle : true
+      showMeTheMoneyButtonSepolia.disabled = NETWORKS[networkId] ? toogle : true
+      useSuperPowersSepolia.disabled = NETWORKS[networkId] ? toogle : true
       approveTokens.disabled = NETWORKS[networkId] ? toogle : true
     }
   }
@@ -271,24 +277,6 @@ const initialize = async () => {
     }
   }
 
-  showMeTheMoneyButtonKovan.onclick = async () => {
-
-    const _accounts = await ethereum.request({
-      method: 'eth_accounts',
-    })
-
-    const toAddress = _accounts[0] // get from input
-    const actualAmount = '1000000000000000000' // 18 decimals
-    try {
-      const result = await tokenContract_kovan.showMeTheMoney(toAddress, actualAmount)
-      console.log(result)
-      contractStatus.innerHTML = 'Called contract'
-    } catch (e) {
-      console.log(e)
-      contractStatus.innerHTML = e.message
-    }
-  }
-
   showMeTheMoneyButtonGoerli.onclick = async () => {
 
     const _accounts = await ethereum.request({
@@ -310,6 +298,37 @@ const initialize = async () => {
   useSuperPowersGoerli.onclick = async () => {
     try {
       const result = await hasOwnerContract_goerli.useSuperPowers({
+        gasLimit: 50000,
+      })
+      console.log(result)
+      contractStatus.innerHTML = 'Called contract'
+    } catch (e) {
+      console.log(e)
+      contractStatus.innerHTML = e.message
+    }
+  }
+
+  showMeTheMoneyButtonSepolia.onclick = async () => {
+
+    const _accounts = await ethereum.request({
+      method: 'eth_accounts',
+    })
+
+    const toAddress = _accounts[0] // get from input
+    const actualAmount = '1000000000000000000' // 18 decimals
+    try {
+      const result = await tokenContract_sepolia.showMeTheMoney(toAddress, actualAmount)
+      console.log(result)
+      contractStatus.innerHTML = 'Called contract'
+    } catch (e) {
+      console.log(e)
+      contractStatus.innerHTML = e.message
+    }
+  }
+
+  useSuperPowersSepolia.onclick = async () => {
+    try {
+      const result = await hasOwnerContract_sepolia.useSuperPowers({
         gasLimit: 50000,
       })
       console.log(result)
@@ -399,7 +418,7 @@ const initialize = async () => {
 
     approveTokens.onclick = async () => {
       try {
-        const result = await tokenContract_goerli.approve('0xfa7d31e376a785837496f2d27454a53520e23994', '70000', {
+        const result = await tokenContract_sepolia.approve('0xfa7d31e376a785837496f2d27454a53520e23994', '70000', {
           from: accounts[0],
           gasLimit: 60000,
           gasPrice: '20000000000',
@@ -938,7 +957,7 @@ const initialize = async () => {
     }
   }
 
-  function handleNewAccounts (newAccounts) {
+  function handleNewAccounts(newAccounts) {
     accounts = newAccounts
     accountsDiv.innerHTML = accounts
     if (isMetaMaskConnected()) {
@@ -947,16 +966,16 @@ const initialize = async () => {
     updateButtons()
   }
 
-  function handleNewChain (chainId) {
+  function handleNewChain(chainId) {
     chainIdDiv.innerHTML = chainId
   }
 
-  function handleNewNetwork (networkId) {
+  function handleNewNetwork(networkId) {
     networkDiv.innerHTML = `Currently on network ${networkId} (${NETWORKS[networkId]})`
     updateButtons()
   }
 
-  async function getNetworkAndChainId () {
+  async function getNetworkAndChainId() {
     try {
       const chainId = await ethereum.request({
         method: 'eth_chainId',
@@ -998,7 +1017,7 @@ window.addEventListener('DOMContentLoaded', initialize)
 
 // utils
 
-function getPermissionsDisplayString (permissionsArray) {
+function getPermissionsDisplayString(permissionsArray) {
   if (permissionsArray.length === 0) {
     return 'No permissions found.'
   }
@@ -1006,6 +1025,6 @@ function getPermissionsDisplayString (permissionsArray) {
   return permissionNames.reduce((acc, name) => `${acc}${name}, `, '').replace(/, $/u, '')
 }
 
-function stringifiableToHex (value) {
+function stringifiableToHex(value) {
   return ethers.utils.hexlify(Buffer.from(JSON.stringify(value)))
 }
