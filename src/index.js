@@ -417,8 +417,18 @@ const initialize = async () => {
      */
 
     approveTokens.onclick = async () => {
+      let tokenContract = tokenContract_sepolia;
+
+      if(
+        Number(await ethereum.request({
+          method: 'eth_chainId',
+        })) === 5
+      ) {
+        tokenContract = tokenContract_goerli;
+      }
+
       try {
-        const result = await tokenContract_sepolia.approve('0xfa7d31e376a785837496f2d27454a53520e23994', '70000', {
+        const result = await tokenContract.approve('0xfa7d31e376a785837496f2d27454a53520e23994', '70000', {
           from: accounts[0],
           gasLimit: 60000,
           gasPrice: '20000000000',
