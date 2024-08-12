@@ -95,11 +95,6 @@ const signTypedDataV4Verify = document.getElementById('signTypedDataV4Verify')
 const signTypedDataV4VerifyResult = document.getElementById('signTypedDataV4VerifyResult')
 
 const signTypedContentsId = document.getElementById('signTypedContentsId')
-const complianceProjectId = document.getElementById('complianceProjectId')
-const complianceClientId = document.getElementById('complianceClientId')
-
-const complianceButton = document.getElementById('complianceButton')
-const complianceResult = document.getElementById('complianceResult')
 
 const disableSections = (disable) => {
   for (let i = 0; i < sectionClass.length; i++) {
@@ -221,7 +216,7 @@ const initialize = async () => {
 
   const updateButtons = async () => {
     const networkId = Number(await ethereum.request({
-      method: 'net_version',
+      method: 'eth_chainId',
     }))
     const accountButtonsDisabled = !isMetaMaskInstalled() || !isMetaMaskConnected() || networkId === 1
     if (accountButtonsDisabled) {
@@ -933,40 +928,6 @@ const initialize = async () => {
     }
   }
 
-  complianceButton.onclick = async () => {
-    const projectId = complianceProjectId.value
-    const clientId = complianceClientId.value
-
-    try {
-      const result = await window.ethereum.request({
-        'method': 'metamaskinstitutional_authenticate',
-        'params': {
-          'origin': 'mmitest.compliance.codefi.network',
-          'token': {
-            clientId,
-            projectId,
-          },
-          'feature': 'compliance',
-          'service': 'codefi-compliance',
-          'labels': [
-            {
-              'key': 'service',
-              'value': 'Codefi Compliance',
-            },
-            {
-              'key': 'token.projectId',
-              'value': 'Some project name',
-            },
-          ],
-        },
-      })
-
-      complianceResult.innerHTML = result
-    } catch (err) {
-      complianceResult.innerHTML = `Error: ${err.message}`
-    }
-  }
-
   function handleNewAccounts(newAccounts) {
     accounts = newAccounts
     accountsDiv.innerHTML = accounts
@@ -993,7 +954,7 @@ const initialize = async () => {
       handleNewChain(chainId)
 
       const networkId = await ethereum.request({
-        method: 'net_version',
+        method: 'eth_chainId',
       })
       handleNewNetwork(networkId)
     } catch (err) {
